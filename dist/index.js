@@ -1,9 +1,4 @@
 "use strict";
-// class User {
-//   id: number;
-//   name: string;
-//   email: string;
-//   isActive: boolean;
 class User {
     constructor(id, name, email, isActive) {
         this.id = id;
@@ -25,22 +20,48 @@ class User {
     }
 }
 class Task {
-    constructor(id, title, description) {
+    constructor(id, title, description, assignedUserId) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.assignedUserId = assignedUserId;
     }
 }
 class userManager {
     constructor() {
         this.users = [];
+        this.tasks = [];
     }
     createUser(id, name, email, isActive) {
         const user = new User(id, name, email, isActive);
         this.users.push(user);
         return user;
     }
-    //update user by id
+    createTask(id, title, description) {
+        const task = new Task(id, title, description);
+        this.tasks.push(task);
+        return task;
+    }
+    assignTaskToUser(taskId, userId) {
+        const task = this.tasks.find((t) => t.id === taskId);
+        const user = this.users.find((u) => u.id === userId);
+        if (task && user) {
+            task.assignedUserId = userId;
+            return true;
+        }
+        return false;
+    }
+    unassignTask(taskId) {
+        const task = this.tasks.find((t) => t.id === taskId);
+        if (task && task.assignedUserId !== undefined) {
+            task.assignedUserId = undefined;
+            return true;
+        }
+        return false;
+    }
+    getTasksForUser(userId) {
+        return this.tasks.filter((t) => t.assignedUserId === userId);
+    }
     updateUserById(id, name, email) {
         const user = this.users.find((u) => u.id === id);
         if (user) {
@@ -49,7 +70,6 @@ class userManager {
         }
         return false;
     }
-    // delete user by id
     deleteUserById(id) {
         const index = this.users.findIndex((u) => u.id === id);
         if (index !== -1) {
@@ -60,13 +80,21 @@ class userManager {
     }
 }
 const usermanager = new userManager();
-const newUser = usermanager.createUser(1, "Alice Smith", "alice@example.com", true);
+const newUser = usermanager.createUser(1, "peter njoroge", "peternjoroge@gmail.com", true);
 console.log(newUser.getUserInfo());
 const updateUser = usermanager.createUser(2, "Maxmillin Muiruri", "maxmillianmuiruri@gmail.com", true);
-newUser.updateUser("Alice Johnson", "alice.johnson@example.com");
+// update user
+newUser.updateUser("john brian", "johnbrian@example.com");
 console.log(newUser.getUserInfo());
 // Delete the user
 const deleted = usermanager.deleteUserById(2);
 console.log("User deleted:", deleted);
-const newTask = new Task(1, "Complete Assignment", "Finish the TypeScript assignment by tomorrow.");
-console.log(newTask);
+const newTask = usermanager.createTask(1, "Complete Assignment", "Finish the TypeScript assignment by tomorrow.");
+// Assign task to user
+usermanager.assignTaskToUser(1, 1);
+// Get tasks for user
+const tasksForAlice = usermanager.getTasksForUser(1);
+console.log("Tasks for peter:", tasksForAlice);
+// Unassign task
+usermanager.unassignTask(1);
+console.log("Tasks for peter after unassign:", usermanager.getTasksForUser(1));

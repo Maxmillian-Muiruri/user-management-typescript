@@ -1,35 +1,3 @@
-// class User {
-//   id: number;
-//   name: string;
-//   email: string;
-//   isActive: boolean;
-
-//   constructor(id: number, name: string, email: string, isActive: boolean) {
-//     this.id = id;
-//     this.name = name;
-//     this.email = email;
-//     this.isActive = isActive;
-//   }
-
-//   updateUser(name: string, email: string): void {
-//     this.id = this.id;
-//     this.name = name;
-//     this.email = email;
-//   }
-//   deleteUser(): void {
-//     this.name = "";
-//     this.id = 0;
-//     this.email = "";
-//     this.isActive = false;
-//   }
-//   geteUser(): void {
-//     this.id = 0
-//     this.name= ''
-//     this.email = ''
-//     this.isActive = false;
-//   }
-// }
-
 interface IUser {
   id: number;
   name: string;
@@ -41,6 +9,7 @@ interface ITask {
   id: number;
   title: string;
   description: string;
+  assignedUserId?: number;
 }
 
 class User implements IUser {
@@ -69,12 +38,14 @@ class Task implements ITask {
   constructor(
     public id: number,
     public title: string,
-    public description: string
+    public description: string,
+    public assignedUserId?: number
   ) {}
 }
 
 class userManager {
   private users: User[] = [];
+  private tasks: Task[] = [];
 
   createUser(id: number, name: string, email: string, isActive: boolean): User {
     const user = new User(id, name, email, isActive);
@@ -82,7 +53,35 @@ class userManager {
     return user;
   }
 
-  //update user by id
+  createTask(id: number, title: string, description: string): Task {
+    const task = new Task(id, title, description);
+    this.tasks.push(task);
+    return task;
+  }
+
+  assignTaskToUser(taskId: number, userId: number): boolean {
+    const task = this.tasks.find((t) => t.id === taskId);
+    const user = this.users.find((u) => u.id === userId);
+    if (task && user) {
+      task.assignedUserId = userId;
+      return true;
+    }
+    return false;
+  }
+
+  unassignTask(taskId: number): boolean {
+    const task = this.tasks.find((t) => t.id === taskId);
+    if (task && task.assignedUserId !== undefined) {
+      task.assignedUserId = undefined;
+      return true;
+    }
+    return false;
+  }
+
+  getTasksForUser(userId: number): Task[] {
+    return this.tasks.filter((t) => t.assignedUserId === userId);
+  }
+
   updateUserById(id: number, name: string, email: string): boolean {
     const user = this.users.find((u) => u.id === id);
     if (user) {
@@ -92,7 +91,6 @@ class userManager {
     return false;
   }
 
-  // delete user by id
   deleteUserById(id: number): boolean {
     const index = this.users.findIndex((u) => u.id === id);
     if (index !== -1) {
@@ -106,8 +104,8 @@ class userManager {
 const usermanager = new userManager();
 const newUser = usermanager.createUser(
   1,
-  "Alice Smith",
-  "alice@example.com",
+  "peter njoroge",
+  "peternjoroge@gmail.com",
   true
 );
 
@@ -120,17 +118,27 @@ const updateUser = usermanager.createUser(
   true
 );
 
-newUser.updateUser("Alice Johnson", "alice.johnson@example.com");
+// update user
+newUser.updateUser("john brian", "johnbrian@example.com");
 console.log(newUser.getUserInfo());
 
 // Delete the user
 const deleted = usermanager.deleteUserById(2);
 console.log("User deleted:", deleted);
 
-const newTask = new Task(
+const newTask = usermanager.createTask(
   1,
   "Complete Assignment",
   "Finish the TypeScript assignment by tomorrow."
 );
 
-console.log(newTask);
+// Assign task to user
+usermanager.assignTaskToUser(1, 1);
+
+// Get tasks for user
+const tasksForAlice = usermanager.getTasksForUser(1);
+console.log("Tasks for peter:", tasksForAlice);
+
+// Unassign task
+usermanager.unassignTask(1);
+console.log("Tasks for peter after unassign:", usermanager.getTasksForUser(1));
