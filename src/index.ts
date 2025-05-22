@@ -117,8 +117,15 @@ const newUser = usermanager.createUser(
   "peternjoroge@gmail.com",
   true
 );
+const newUser2 = usermanager.createUser(
+  2,
+  "john paul",
+  "johnpaul@gmail.com",
+  true
+);
 
 console.log("createuser:", newUser.getUserInfo());
+console.log("createuser2:", newUser2.getUserInfo());
 
 usermanager.createUser(
   2,
