@@ -105,7 +105,7 @@ const tasksForAlice = usermanager.getTasksForUser(1);
 console.log("Tasks for peter:", tasksForAlice);
 // Unassign task
 usermanager.unassignTask(1);
-console.log("Tasks for peter after unassign:", usermanager.getTasksForUser(1));
+console.log("Tasks for peter after unassigned:", usermanager.getTasksForUser(1));
 //deletetask
 const deletedTask = usermanager.deleteTaskById(1);
 console.log("Task deleted:", deletedTask);
