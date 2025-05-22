@@ -99,6 +99,15 @@ class userManager {
     }
     return false;
   }
+
+  deleteTaskById(id: number): boolean {
+    const index = this.tasks.findIndex((t) => t.id === id);
+    if (index !== -1) {
+      this.tasks.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
 }
 
 const usermanager = new userManager();
@@ -142,3 +151,6 @@ console.log("Tasks for peter:", tasksForAlice);
 // Unassign task
 usermanager.unassignTask(1);
 console.log("Tasks for peter after unassign:", usermanager.getTasksForUser(1));
+//deletetask
+const deletedTask = usermanager.deleteTaskById(1);
+console.log("Task deleted:", deletedTask);
