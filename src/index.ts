@@ -118,9 +118,9 @@ const newUser = usermanager.createUser(
   true
 );
 
-console.log(newUser.getUserInfo());
+console.log("createuser:", newUser.getUserInfo());
 
-const updateUser = usermanager.createUser(
+usermanager.createUser(
   2,
   "Maxmillin Muiruri",
   "maxmillianmuiruri@gmail.com",
@@ -129,7 +129,7 @@ const updateUser = usermanager.createUser(
 
 // update user
 newUser.updateUser("john brian", "johnbrian@example.com");
-console.log(newUser.getUserInfo());
+console.log("update user", newUser.getUserInfo());
 
 // Delete the user
 const deleted = usermanager.deleteUserById(2);

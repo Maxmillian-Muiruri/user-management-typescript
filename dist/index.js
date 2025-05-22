@@ -89,11 +89,11 @@ class userManager {
 }
 const usermanager = new userManager();
 const newUser = usermanager.createUser(1, "peter njoroge", "peternjoroge@gmail.com", true);
-console.log(newUser.getUserInfo());
-const updateUser = usermanager.createUser(2, "Maxmillin Muiruri", "maxmillianmuiruri@gmail.com", true);
+console.log("createuser:", newUser.getUserInfo());
+usermanager.createUser(2, "Maxmillin Muiruri", "maxmillianmuiruri@gmail.com", true);
 // update user
 newUser.updateUser("john brian", "johnbrian@example.com");
-console.log(newUser.getUserInfo());
+console.log("update user", newUser.getUserInfo());
 // Delete the user
 const deleted = usermanager.deleteUserById(2);
 console.log("User deleted:", deleted);
