@@ -150,7 +150,6 @@ function refreshTaskList(): void {
     )
     .join("");
 }
-
 // create user
 function handleUserCreate(): void {
   const id = parseInt(
@@ -226,10 +225,9 @@ function handleAssignTask(): void {
   const userId = parseInt(
     (document.getElementById("assignUserId") as HTMLInputElement).value
   );
-  !usermanager.assignTaskToUser(taskId, userId);
-  if (!usermanager.assignTaskToUser(taskId, userId)) {
-    alert("Task or User not found!");
-  }
+  // if (!usermanager.assignTaskToUser(taskId, userId)) {
+  //   alert("Task or User not found!");
+  // }
   refreshTaskList();
 }
 
