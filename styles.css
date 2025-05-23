@@ -1,5 +1,5 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Roboto", Arial, sans-serif;
   line-height: 1.6;
   margin: 0;
   padding: 20px;
@@ -71,6 +71,8 @@ button:hover {
   margin-bottom: 10px;
   border-radius: 4px;
   border-left: 4px solid #4caf50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s;
 }
 
 .task-assigned {
