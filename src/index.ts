@@ -225,9 +225,9 @@ function handleAssignTask(): void {
   const userId = parseInt(
     (document.getElementById("assignUserId") as HTMLInputElement).value
   );
-  // if (!usermanager.assignTaskToUser(taskId, userId)) {
-  //   alert("Task or User not found!");
-  // }
+  if (!usermanager.assignTaskToUser(taskId, userId)) {
+    alert("Task or User not found!");
+  }
   refreshTaskList();
 }
 

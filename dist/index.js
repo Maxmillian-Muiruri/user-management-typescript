@@ -167,9 +167,9 @@ function handleTaskDelete() {
 function handleAssignTask() {
     const taskId = parseInt(document.getElementById("assignTaskId").value);
     const userId = parseInt(document.getElementById("assignUserId").value);
-    // if (!usermanager.assignTaskToUser(taskId, userId)) {
-    //   alert("Task or User not found!");
-    // }
+    if (!usermanager.assignTaskToUser(taskId, userId)) {
+        alert("Task or User not found!");
+    }
     refreshTaskList();
 }
 function handleUnassignTask() {
