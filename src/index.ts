@@ -28,6 +28,7 @@ class User implements IUser {
       isActive: this.isActive,
     };
   }
+
   updateUser(name: string, email: string): void {
     this.name = name;
     this.email = email;
@@ -43,7 +44,7 @@ class Task implements ITask {
   ) {}
 }
 
-class userManager {
+class UserManager {
   public users: User[] = [];
   public tasks: Task[] = [];
 
@@ -90,7 +91,9 @@ class userManager {
   ): boolean {
     const user = this.users.find((u) => u.id === id);
     if (user) {
-      user.updateUser(name, email);
+      user.name = name;
+      user.email = email;
+      user.isActive = isActive;
       return true;
     }
     return false;
@@ -115,218 +118,260 @@ class userManager {
   }
 }
 
-const usermanager = new userManager();
+const userManager = new UserManager();
 
-function refreshUserList(): void {
-  const container = document.getElementById("usersList") as HTMLElement;
-  container.innerHTML = usermanager.users
+// DOM Utility Functions
+function getElement<T extends HTMLElement>(id: string): T {
+  const element = document.getElementById(id);
+  if (!element) throw new Error(`Element with id ${id} not found`);
+  return element as T;
+}
+
+// Render Functions
+function renderUsers(users?: User[]): void {
+  const usersToRender = users || userManager.users;
+  const container = getElement<HTMLDivElement>("usersList");
+  container.innerHTML = usersToRender
     .map(
       (user) => `
-        <div class="user-card">
-          <h3>${user.name} (ID: ${user.id})</h3>
-          <p>Email: ${user.email}</p>
-          <p>Status: ${user.isActive ? "Active" : "Inactive"}</p>
-        </div>`
+      <div class="user-card">
+        <div class="user-id">#${user.id}</div>
+        <div class="user-info">
+          <div class="user-name">${user.name}</div>
+          <div class="user-email">${user.email}</div>
+        </div>
+        <div class="user-status ${
+          user.isActive ? "status-active" : "status-inactive"
+        }">
+          ${user.isActive ? "Active" : "Inactive"}
+        </div>
+      </div>`
     )
     .join("");
 }
 
-function refreshTaskList(): void {
-  const container = document.getElementById("tasksList") as HTMLElement;
-  container.innerHTML = usermanager.tasks
+function renderTasks(tasks?: Task[]): void {
+  const tasksToRender = tasks || userManager.tasks;
+  const container = getElement<HTMLDivElement>("tasksList");
+  container.innerHTML = tasksToRender
     .map(
       (task) => `
-        <div class="task-card ${
-          task.assignedUserId ? "assigned" : "unassigned"
-        }">
-          <h3>${task.title} (ID: ${task.id})</h3>
-          <p>${task.description}</p>
-          <p>${
-            task.assignedUserId
-              ? `Assigned to User ${task.assignedUserId}`
-              : "Unassigned"
-          }</p>
-        </div>`
+      <div class="task-card ${task.assignedUserId ? "assigned" : "unassigned"}">
+        <div class="task-id">#${task.id}</div>
+        <div class="task-info">
+          <div class="task-title">${task.title}</div>
+          <div class="task-desc">${task.description}</div>
+          <div class="task-assignee">
+            ${
+              task.assignedUserId
+                ? `<i class="fas fa-user-check"></i> Assigned to user #${task.assignedUserId}`
+                : `<span class="no-assignee"><i class="fas fa-user-times"></i> Unassigned</span>`
+            }
+          </div>
+        </div>
+      </div>`
     )
     .join("");
 }
-// create user
-function handleUserCreate(): void {
-  const id = parseInt(
-    (document.getElementById("userId") as HTMLInputElement).value
-  );
-  const name = (document.getElementById("userName") as HTMLInputElement).value;
-  const email = (document.getElementById("userEmail") as HTMLInputElement)
-    .value;
-  const isActive = (document.getElementById("userActive") as HTMLInputElement)
-    .checked;
 
-  usermanager.createUser(id, name, email, isActive);
-  refreshUserList();
+function updateCounters(): void {
+  const userCount = getElement<HTMLSpanElement>("userCount");
+  const taskCount = getElement<HTMLSpanElement>("taskCount");
+  userCount.textContent = userManager.users.length.toString();
+  taskCount.textContent = userManager.tasks.length.toString();
 }
 
-// update user
+function refreshAllData(): void {
+  renderUsers();
+  renderTasks();
+  updateCounters();
+}
+
+// Search and Filter Functions
+function filterUsers(searchTerm: string): void {
+  const filtered = userManager.users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.id.toString().includes(searchTerm)
+  );
+  renderUsers(filtered);
+}
+
+function filterTasks(searchTerm: string): void {
+  const filtered = userManager.tasks.filter(
+    (task) =>
+      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      task.id.toString().includes(searchTerm)
+  );
+  renderTasks(filtered);
+}
+
+function filterTasksByStatus(status: string): void {
+  let filtered: Task[] = [];
+  switch (status) {
+    case "assigned":
+      filtered = userManager.tasks.filter(
+        (task) => task.assignedUserId !== undefined
+      );
+      break;
+    case "unassigned":
+      filtered = userManager.tasks.filter(
+        (task) => task.assignedUserId === undefined
+      );
+      break;
+    default:
+      filtered = [...userManager.tasks];
+  }
+  renderTasks(filtered);
+}
+
+// Fullscreen Functionality
+function toggleFullscreen(sectionClass: string): void {
+  const section = document.querySelector(`.${sectionClass}`);
+  if (!section) return;
+
+  section.classList.toggle("fullscreen");
+  const btn = document.getElementById(
+    `${
+      sectionClass === "user-management" ? "expandUsersBtn" : "expandTasksBtn"
+    }`
+  );
+  const icon = btn?.querySelector("i");
+  if (icon) {
+    icon.classList.toggle("fa-expand");
+    icon.classList.toggle("fa-compress");
+  }
+}
+
+// Event Handlers
+function handleUserCreate(): void {
+  const id = parseInt(getElement<HTMLInputElement>("userId").value);
+  const name = getElement<HTMLInputElement>("userName").value;
+  const email = getElement<HTMLInputElement>("userEmail").value;
+  const isActive = getElement<HTMLInputElement>("userActive").checked;
+
+  userManager.createUser(id, name, email, isActive);
+  refreshAllData();
+}
 
 function handleUserUpdate(): void {
-  const id = parseInt(
-    (document.getElementById("userId") as HTMLInputElement).value
-  );
-  const name = (document.getElementById("userName") as HTMLInputElement).value;
-  const email = (document.getElementById("userEmail") as HTMLInputElement)
-    .value;
-  const isActive = (document.getElementById("userActive") as HTMLInputElement)
-    .checked;
-  usermanager.updateUserById(id, name, email, isActive);
-  refreshUserList();
+  const id = parseInt(getElement<HTMLInputElement>("userId").value);
+  const name = getElement<HTMLInputElement>("userName").value;
+  const email = getElement<HTMLInputElement>("userEmail").value;
+  const isActive = getElement<HTMLInputElement>("userActive").checked;
+
+  if (userManager.updateUserById(id, name, email, isActive)) {
+    refreshAllData();
+  } else {
+    alert("User not found!");
+  }
 }
 
-//delete user
 function handleUserDelete(): void {
-  const id = parseInt(
-    (document.getElementById("userId") as HTMLInputElement).value
-  );
-  usermanager.deleteUserById(id);
-  refreshUserList();
-  refreshTaskList();
+  const id = parseInt(getElement<HTMLInputElement>("userId").value);
+  if (userManager.deleteUserById(id)) {
+    refreshAllData();
+  } else {
+    alert("User not found!");
+  }
 }
 
-//task
-/**
- * create task
- */
 function handleTaskCreate(): void {
-  const id = parseInt(
-    (document.getElementById("taskId") as HTMLInputElement).value
-  );
-  const title = (document.getElementById("taskTitle") as HTMLInputElement)
-    .value;
-  const desc = (document.getElementById("taskDesc") as HTMLInputElement).value;
-  usermanager.createTask(id, title, desc);
-  refreshTaskList();
-}
-/**
- * delete task
- */
-function handleTaskDelete(): void {
-  const id = parseInt(
-    (document.getElementById("taskId") as HTMLInputElement).value
-  );
-  usermanager.deleteTaskById(id);
-  refreshTaskList();
+  const id = parseInt(getElement<HTMLInputElement>("taskId").value);
+  const title = getElement<HTMLInputElement>("taskTitle").value;
+  const desc = getElement<HTMLTextAreaElement>("taskDesc").value;
+
+  userManager.createTask(id, title, desc);
+  refreshAllData();
 }
 
-/**
- *
- */
+function handleTaskDelete(): void {
+  const id = parseInt(getElement<HTMLInputElement>("taskId").value);
+  if (userManager.deleteTaskById(id)) {
+    refreshAllData();
+  } else {
+    alert("Task not found!");
+  }
+}
+
 function handleAssignTask(): void {
-  const taskId = parseInt(
-    (document.getElementById("assignTaskId") as HTMLInputElement).value
-  );
-  const userId = parseInt(
-    (document.getElementById("assignUserId") as HTMLInputElement).value
-  );
-  if (!usermanager.assignTaskToUser(taskId, userId)) {
+  const taskId = parseInt(getElement<HTMLInputElement>("assignTaskId").value);
+  const userId = parseInt(getElement<HTMLInputElement>("assignUserId").value);
+
+  if (!userManager.assignTaskToUser(taskId, userId)) {
     alert("Task or User not found!");
   }
-  refreshTaskList();
+  refreshAllData();
 }
 
 function handleUnassignTask(): void {
-  const taskId = parseInt(
-    (document.getElementById("assignTaskId") as HTMLInputElement).value
-  );
-  usermanager.unassignTask(taskId);
-  refreshTaskList();
+  const taskId = parseInt(getElement<HTMLInputElement>("assignTaskId").value);
+  if (!userManager.unassignTask(taskId)) {
+    alert("Task not found or already unassigned!");
+  }
+  refreshAllData();
 }
 
+// Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
-  (document.getElementById("createUserBtn") as HTMLElement).addEventListener(
+  // User Management Event Listeners
+  getElement<HTMLButtonElement>("createUserBtn").addEventListener(
     "click",
     handleUserCreate
   );
-  (document.getElementById("updateUserBtn") as HTMLElement).addEventListener(
+  getElement<HTMLButtonElement>("updateUserBtn").addEventListener(
     "click",
-
     handleUserUpdate
   );
-  (document.getElementById("deleteUserBtn") as HTMLElement).addEventListener(
+  getElement<HTMLButtonElement>("deleteUserBtn").addEventListener(
     "click",
     handleUserDelete
   );
-  (document.getElementById("createTaskBtn") as HTMLElement).addEventListener(
+
+  // Task Management Event Listeners
+  getElement<HTMLButtonElement>("createTaskBtn").addEventListener(
     "click",
     handleTaskCreate
   );
-
-  (document.getElementById("deleteTaskBtn") as HTMLElement).addEventListener(
+  getElement<HTMLButtonElement>("deleteTaskBtn").addEventListener(
     "click",
     handleTaskDelete
   );
-
-  (document.getElementById("assignTaskBtn") as HTMLElement).addEventListener(
+  getElement<HTMLButtonElement>("assignTaskBtn").addEventListener(
     "click",
     handleAssignTask
   );
-
-  (document.getElementById("unassignTaskBtn") as HTMLElement).addEventListener(
+  getElement<HTMLButtonElement>("unassignTaskBtn").addEventListener(
     "click",
     handleUnassignTask
   );
 
-  refreshUserList();
-  refreshTaskList();
+  // New Feature Event Listeners
+  getElement<HTMLButtonElement>("refreshAllBtn").addEventListener("click", () =>
+    location.reload()
+  );
+  getElement<HTMLButtonElement>("expandUsersBtn").addEventListener(
+    "click",
+    () => toggleFullscreen("user-management")
+  );
+  getElement<HTMLButtonElement>("expandTasksBtn").addEventListener(
+    "click",
+    () => toggleFullscreen("task-management")
+  );
+
+  // Search and Filter Event Listeners
+  getElement<HTMLInputElement>("userSearch").addEventListener("input", (e) =>
+    filterUsers((e.target as HTMLInputElement).value)
+  );
+  getElement<HTMLInputElement>("taskSearch").addEventListener("input", (e) =>
+    filterTasks((e.target as HTMLInputElement).value)
+  );
+  getElement<HTMLSelectElement>("taskFilter").addEventListener("change", (e) =>
+    filterTasksByStatus((e.target as HTMLSelectElement).value)
+  );
+
+  // Initial render
+  refreshAllData();
 });
-
-// const newUser = usermanager.createUser(
-//   1,
-//   "peter njoroge",
-//   "peternjoroge@gmail.com",
-//   true
-// );
-// const newUser2 = usermanager.createUser(
-//   2,
-//   "john paul",
-//   "johnpaul@gmail.com",
-//   true
-// );
-
-// console.log("createuser:", newUser.getUserInfo());
-// console.log("createuser2:", newUser2.getUserInfo());
-
-// usermanager.createUser(
-//   2,
-//   "Maxmillin Muiruri",
-//   "maxmillianmuiruri@gmail.com",
-//   true
-// );
-
-// // update user
-// newUser.updateUser("john brian", "johnbrian@example.com");
-// console.log("update user", newUser.getUserInfo());
-
-// // Delete the user
-// const deleted = usermanager.deleteUserById(2);
-// console.log("User deleted:", deleted);
-
-// const newTask = usermanager.createTask(
-//   1,
-//   "Complete Assignment",
-//   "Finish the TypeScript assignment by tomorrow."
-// );
-
-// // Assign task to user
-// usermanager.assignTaskToUser(1, 1);
-
-// // Get tasks for user
-// const tasksForAlice = usermanager.getTasksForUser(1);
-// console.log("Tasks for peter:", tasksForAlice);
-
-// // Unassign task
-// usermanager.unassignTask(1);
-// console.log(
-//   "Tasks for peter after unassigned:",
-//   usermanager.getTasksForUser(1)
-// );
-// //deletetask
-// const deletedTask = usermanager.deleteTaskById(1);
-// console.log("Task deleted:", deletedTask);

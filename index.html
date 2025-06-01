@@ -6,51 +6,168 @@
     <title>User Task Manager</title>
     <link rel="stylesheet" href="styles.css" />
     <link
-      href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
   </head>
   <body>
     <div class="container">
-      <h1>User Task Manager</h1>
+      <header class="app-header">
+        <h1><i class="fas fa-tasks"></i> User Task Manager</h1>
+        <div class="header-actions">
+          <button class="btn btn-primary" id="refreshAllBtn">
+            <i class="fas fa-sync-alt"></i> Refresh All
+          </button>
+        </div>
+      </header>
 
-      <!-- User Management Section -->
-      <div class="section">
-        <h2>User Management</h2>
-        <div class="form-group">
-          <input type="number" id="userId" placeholder="User ID" required />
-          <input type="text" id="userName" placeholder="Name" />
-          <input type="email" id="userEmail" placeholder="Email" />
-          <label><input type="checkbox" id="userActive" /> Active</label>
-          <button id="createUserBtn">Create User</button>
-          <button id="updateUserBtn">Update User</button>
-          <button id="deleteUserBtn">Delete User</button>
-        </div>
-        <div id="usersList" class="list-container"></div>
-      </div>
+      <div class="dashboard-grid">
+        <!-- User Management Section -->
+        <section class="card user-management">
+          <div class="card-header">
+            <h2><i class="fas fa-users"></i> User Management</h2>
+            <div class="card-actions">
+              <button class="btn btn-icon" id="expandUsersBtn">
+                <i class="fas fa-expand"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <div class="input-group">
+                <label for="userId">User ID</label>
+                <input
+                  type="number"
+                  id="userId"
+                  placeholder="Enter user ID"
+                  required
+                />
+              </div>
+              <div class="input-group">
+                <label for="userName">Name</label>
+                <input type="text" id="userName" placeholder="Full name" />
+              </div>
+              <div class="input-group">
+                <label for="userEmail">Email</label>
+                <input
+                  type="email"
+                  id="userEmail"
+                  placeholder="user@example.com"
+                />
+              </div>
+              <div class="checkbox-group">
+                <input type="checkbox" id="userActive" />
+                <label for="userActive">Active User</label>
+              </div>
+              <div class="button-group">
+                <button class="btn btn-primary" id="createUserBtn">
+                  <i class="fas fa-user-plus"></i> Create
+                </button>
+                <button class="btn btn-secondary" id="updateUserBtn">
+                  <i class="fas fa-user-edit"></i> Update
+                </button>
+                <button class="btn btn-danger" id="deleteUserBtn">
+                  <i class="fas fa-user-minus"></i> Delete
+                </button>
+              </div>
+            </div>
+            <div class="list-header">
+              <h3>User List <span class="badge" id="userCount">0</span></h3>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search users..."
+                id="userSearch"
+              />
+            </div>
+            <div id="usersList" class="list-container"></div>
+          </div>
+        </section>
 
-      <!-- Task Management Section -->
-      <div class="section">
-        <h2>Task Management</h2>
-        <div class="form-group">
-          <input type="number" id="taskId" placeholder="Task ID" />
-          <input type="text" id="taskTitle" placeholder="Title" />
-          <textarea id="taskDesc" placeholder="Description"></textarea>
-          <button id="createTaskBtn">Create Task</button>
-          <button id="deleteTaskBtn">Delete Task</button>
-        </div>
-        <div class="form-group">
-          <input
-            type="number"
-            id="assignTaskId"
-            placeholder="Task ID"
-            required
-          />
-          <input type="number" id="assignUserId" placeholder="User ID" />
-          <button id="assignTaskBtn">Assign Task</button>
-          <button id="unassignTaskBtn">Unassign Task</button>
-        </div>
-        <div id="tasksList" class="list-container"></div>
+        <!-- Task Management Section -->
+        <section class="card task-management">
+          <div class="card-header">
+            <h2><i class="fas fa-tasks"></i> Task Management</h2>
+            <div class="card-actions">
+              <button class="btn btn-icon" id="expandTasksBtn">
+                <i class="fas fa-expand"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <div class="input-group">
+                <label for="taskId">Task ID</label>
+                <input type="number" id="taskId" placeholder="Enter task ID" />
+              </div>
+              <div class="input-group">
+                <label for="taskTitle">Title</label>
+                <input type="text" id="taskTitle" placeholder="Task title" />
+              </div>
+              <div class="input-group full-width">
+                <label for="taskDesc">Description</label>
+                <textarea
+                  id="taskDesc"
+                  placeholder="Task description"
+                ></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <label for="assignTaskId">Task ID</label>
+                <input
+                  type="number"
+                  id="assignTaskId"
+                  placeholder="For assignment"
+                  required
+                />
+              </div>
+              <div class="input-group">
+                <label for="assignUserId">User ID</label>
+                <input
+                  type="number"
+                  id="assignUserId"
+                  placeholder="Assign to user"
+                />
+              </div>
+            </div>
+            <div class="button-group">
+              <button class="btn btn-primary" id="createTaskBtn">
+                <i class="fas fa-plus-circle"></i> Create Task
+              </button>
+              <button class="btn btn-danger" id="deleteTaskBtn">
+                <i class="fas fa-trash-alt"></i> Delete Task
+              </button>
+              <button class="btn btn-success" id="assignTaskBtn">
+                <i class="fas fa-user-check"></i> Assign
+              </button>
+              <button class="btn btn-warning" id="unassignTaskBtn">
+                <i class="fas fa-user-times"></i> Unassign
+              </button>
+            </div>
+            <div class="list-header">
+              <h3>Task List <span class="badge" id="taskCount">0</span></h3>
+              <div class="filter-group">
+                <select class="filter-select" id="taskFilter">
+                  <option value="all">All Tasks</option>
+                  <option value="assigned">Assigned</option>
+                  <option value="unassigned">Unassigned</option>
+                </select>
+                <input
+                  type="text"
+                  class="search-input"
+                  placeholder="Search tasks..."
+                  id="taskSearch"
+                />
+              </div>
+            </div>
+            <div id="tasksList" class="list-container"></div>
+          </div>
+        </section>
       </div>
     </div>
 
